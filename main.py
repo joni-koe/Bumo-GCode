@@ -85,6 +85,8 @@ def startup():
         with suppress(ModuleNotFoundError):
             import pyi_splash
             pyi_splash.close()
+    
+    return get_files_and_mod_times(GCODE_DIR)
 
 def should_copy_file(already_copied_files, file_name, last_mode_time) -> bool:
     should_copy = False
@@ -98,8 +100,7 @@ def should_copy_file(already_copied_files, file_name, last_mode_time) -> bool:
     return should_copy
 
 if __name__ == "__main__":
-    startup()
-    already_copied_files = {}
+    already_copied_files = startup()
     while True:
         files = get_files_and_mod_times(GCODE_DIR)
         for file_name in files:
