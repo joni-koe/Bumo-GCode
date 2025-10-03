@@ -51,34 +51,11 @@ def get_files_and_mod_times(directory_path):
                 pass
     return files
 
-
-# def get_latest_mod_file(directory_path):
-#     global latest_mod_time
-#     global latest_file
-    
-#     for filename in os.listdir(directory_path):
-#         file_path = os.path.join(directory_path, filename)
-#         if os.path.isfile(file_path):
-#             try: 
-#                 mod_time = os.path.getmtime(file_path)
-#                 if mod_time > latest_mod_time:
-#                     latest_mod_time = mod_time
-#                     latest_file = file_path
-#             except OSError as e:
-#                 print(f"Error accessing file '{file_path}': {e}")
-#                 continue 
-#     return latest_file, mod_time
-    
 def create_dirs():
     try: 
         os.mkdir(GCODE_DIR)
     except FileExistsError:
         " "
-
-
-
-# def check_dir_not_empty():
-#     return len(os.listdir(directory)) > 0
 
 
 def copy_file(latest_file):
@@ -94,15 +71,6 @@ def show_notification():
     toast.show()
 
 
-# def main(file_name):
-#     dir_not_empyt = check_dir_not_empty()
-#     if dir_not_empyt:
-#         latest_file_path, _ = get_latest_mod_file(directory)
-#         # os.path.getmtime(latest_file_path)
-#         copy_file(latest_file_path)
-#     else:
-#         ""
-#     notification(dir_not_empyt)
 
 
 def autoInstall():
