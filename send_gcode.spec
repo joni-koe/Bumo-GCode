@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['main.py'],
+    ['send_gcode.py'],
     pathex=[],
     binaries=[],
     datas=[('data', 'data')],
@@ -33,7 +33,7 @@ exe = EXE(
     splash,
     splash.binaries,
     [],
-    name='main',
+    name='send_gcode',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
