@@ -29,6 +29,15 @@ def get_exe_path():
         application_path = os.path.dirname(__file__)
     return application_path
 
+def get_data_path(relative_path):
+    bundle_dir = None
+    if getattr(sys, 'frozen', False):
+        bundle_dir = sys._MEIPASS
+    else:
+        bundle_dir = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(bundle_dir, relative_path)
+
 def create_shortcut_pyshortcuts(dest_file_path, name, folder=None, icon=None, description=None):
     pyshortcuts.make_shortcut(
         script=dest_file_path,
@@ -66,7 +75,7 @@ def show_notification():
                         title = "",
                         msg = f"GCode was sent successfully",
                         duration = "short",
-                        icon = os.path.join(get_exe_path(), ICON_FILE_NAME)
+                        icon = get_data_path(ICON_FILE_NAME)
     )
     toast.show()
 
