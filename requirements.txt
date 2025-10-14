@@ -1,2 +1,5 @@
 pyshortcuts 
 winotify
+win32security
+pyyaml
+python-box

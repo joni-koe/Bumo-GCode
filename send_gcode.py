@@ -1,5 +1,8 @@
 
-import os 
+import win32security
+import os
+import box
+import yaml
 import shutil
 import time
 from winotify import Notification
@@ -7,6 +10,7 @@ import pyshortcuts
 import sys
 from contextlib import suppress # for hiding splash screen
 
+CONFIG = None
 STARTUP_NAME = "BumoAutostart.lnk"
 USER_HOME = os.getenv("userprofile")
 AUTO_START_DIR = os.path.join(USER_HOME, r"AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup")
@@ -17,6 +21,20 @@ SPEED_S = 2
 new_path = r"C:\ankommen"
 latest_file = None 
 latest_mod_time = 0
+
+def update_global_var():
+    global new_path
+    global GCODE_DIR
+
+    new_path = CONFIG.target_dir
+    GCODE_DIR = CONFIG.gcode_dir
+
+def read_config() -> None:
+    global CONFIG, TUNNEL_COMMANDS
+    with open('./config.yaml', encoding='utf-8') as file:
+        CONFIG = box.Box(yaml.safe_load(file))
+    print('config read')
+    update_global_var()
 
 def running_as_exe():
     return getattr(sys, 'frozen', False)
@@ -66,9 +84,15 @@ def create_dirs():
     except FileExistsError:
         " "
 
-
 def copy_file(latest_file):
     shutil.copy(f"{latest_file}", f"{new_path}")
+
+def i_am_the_owner(file_path):
+    sd = win32security.GetFileSecurity(file_path, win32security.OWNER_SECURITY_INFORMATION)
+    owner_sid = sd.GetSecurityDescriptorOwner()
+    name, domain, type = win32security.LookupAccountSid(None, owner_sid)
+
+    if os.getlogin() == name: return True 
 
 def show_notification():
     toast = Notification(app_id = "Bumotec 2",
@@ -86,6 +110,7 @@ def autoInstall():
     create_shortcut_pyshortcuts(get_exe_path(), STARTUP_NAME, AUTO_START_DIR)
 
 def startup():
+    read_config()
     create_dirs()
 
     if running_as_exe():
@@ -114,11 +139,11 @@ if __name__ == "__main__":
         files = get_files_and_mod_times(GCODE_DIR)
         for file_name in files:
             mod_time = files[file_name]
-            if should_copy_file(already_copied_files, file_name, mod_time):
-                copy_file(os.path.join(GCODE_DIR, file_name))
+            file_path = os.path.join(GCODE_DIR, file_name)
+            if should_copy_file(already_copied_files, file_name, mod_time) and i_am_the_owner(file_path):
+                copy_file(file_path)
                 show_notification()
                 already_copied_files[file_name] = mod_time
 
         time.sleep(SPEED_S)
-
 
