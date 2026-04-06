@@ -54,29 +54,28 @@ class Duplicator:
             mod_time = self._already_transfered_files[file_name]
             if last_mode_time > mod_time:
                 should_copy = True
-        except KeyError as e:
+        except KeyError:
             should_copy = True
         return should_copy
 
-    def read_user_from_gcode_file(self, filepath:str) -> str:
-        USER_CODENAME = 'User'
-        with open(filepath, 'r') as gcode_file:
+    def read_user_from_gcode_file(self, filepath: str) -> str:
+        user_codename = 'User'
+        with open(filepath, encoding='utf-8') as gcode_file:
             lines = gcode_file.readlines(self._vars.header_lines)
             for line in lines:
                 line = line.strip().replace(' ', '').replace('\t', '').removeprefix('(').removesuffix(')')
-                if line.find(USER_CODENAME) >= 0:
-                    line = line.removeprefix(USER_CODENAME + ':')
+                if line.find(user_codename) >= 0:
+                    line = line.removeprefix(user_codename + ':')
                     return line
 
         return ''
 
-
     def _should_copy_file(self, file_path: str, last_mode_time: float) -> bool:
-        file_modified:bool = self._new_or_moded_file(os.path.basename(file_path), last_mode_time)
-        
+        file_modified: bool = self._new_or_moded_file(os.path.basename(file_path), last_mode_time)
+
         if file_modified:
-            username:str = self.read_user_from_gcode_file(file_path)
-            if username == self._vars.user_name or username == '':
+            username: str = self.read_user_from_gcode_file(file_path)
+            if username in self._vars.user_name or username == '':
                 return True
 
         return False
