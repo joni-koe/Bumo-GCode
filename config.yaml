@@ -1,2 +1,6 @@
-gcode_dir: C:\Users\jonik\Desktop\GCode
-target_dir: C:\ankommen
+
+startup_shortcut_name: BumoAutostart.lnk
+gcode_dirs: [ "./GCode_dir_bumo1", "./GCode_dir_bumo2" ]
+target_dir: ./target_dir
+suc_synonyms: [ gracefully, successfully, heavenly, victoriously, swimmingly, triumphantly, strongly, "quite well", splendidly ]
+header_lines: 11

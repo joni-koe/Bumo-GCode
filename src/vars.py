@@ -1,0 +1,87 @@
+import getpass
+import os
+import sys
+import time
+from pathlib import Path
+from typing import Any
+
+import yaml  # pylint: disable=import-error
+
+from src.notifier import Notifier
+
+
+class Vars:
+    def __init__(self, **kwargs: Any) -> None:
+        self._last_config_read_time = time.time()
+
+        self.app_pid_file_path = os.path.join(os.path.expandvars('%APPDATA%'), 'Bumo_GCode\\app.pidfile')
+        self.startup_shortcut_name = 'BumoAutostart.lnk'
+        self.user_home = os.getenv('userprofile') or os.path.expanduser('~')
+        self.auto_start_dir = os.path.join(
+            self.user_home,
+            r'AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup',
+        )
+        self.user_name = getpass.getuser()
+        self.icon_file_png_path = self.get_data_file_path(r'..\data\splash.png')
+        self.icon_file_ico_path = self.get_data_file_path('..\\data\\icon.ico')
+        self.gcode_dirs = ['./GCode_dir']
+        self.target_dir = './target_dir'
+        self.suc_synonyms = 'successfully'
+        self.header_lines = 10
+        self.loop_speed_s = 2
+
+        for key, value in kwargs.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
+
+    def inject_notifier(self, notifier: Notifier) -> None:
+        self._notifier = notifier
+
+    def get_exe_path(self) -> str:
+        application_path = 'unknown'
+        if self.running_as_exe():
+            application_path = os.path.abspath(sys.argv[0])
+        elif __file__:
+            application_path = os.path.dirname(__file__)
+        return application_path
+
+    def running_as_exe(self) -> bool:
+        return '__compiled__' in globals()
+
+    def get_data_file_path(self, relative_path: str) -> str:
+        base_path = os.path.abspath('src')
+        if self.running_as_exe():
+            base_path = os.path.dirname(__file__)
+
+        return os.path.join(base_path, relative_path)
+
+    @classmethod
+    def from_yaml(cls, filename: str = './config.yaml') -> 'Vars':
+        path = Path(filename)
+        if path.exists():
+            try:
+                with open(path, encoding='utf-8') as f:
+                    data = yaml.safe_load(f)
+                if isinstance(data, dict):
+                    return cls(**data)
+
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                print(f'Error loading config, using defaults: {e}')
+
+        return cls()
+
+    def auto_reload_config(self, config_file: str = 'config.yaml') -> bool:
+        if not os.path.exists(config_file):
+            return False
+
+        config_last_mod_time = os.path.getmtime(config_file)
+        if config_last_mod_time > self._last_config_read_time:
+            new_vars = Vars.from_yaml(config_file)
+            self.__dict__.update(new_vars.__dict__)
+            self._last_config_read_time = time.time()
+
+            self._notifier.show_notification('config hot-reloaded')
+            print('config hot reloaded')
+            return True
+
+        return False

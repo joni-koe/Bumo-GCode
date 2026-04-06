@@ -1,0 +1,43 @@
+name: Build + Publish
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build-push-container:
+    runs-on: ubuntu-latest
+    container:
+        image: jairf/nuitka_win_builder:latest
+    permissions:
+        contents: write # Needed for creating a release and uploading assets
+    steps:
+      - uses: actions/checkout@v4
+      - run: wine python -m pip install -r requirements.txt
+      - run: mkdir artifacts
+      - name: Insert version tag
+        run: |
+            sed -i 's/x.x.x/${{ github.ref_name }}/g' src/const.py
+            sed -i 's/x.x.x/${{ github.ref_name }}/g' build_exe.sh
+      - run: chmod +x *.sh && ./build_exe.sh
+      - run: cp app.exe artifacts
+      - run: cp config.yaml artifacts
+      - name: Install Zip Utility
+        run: |
+          apt-get update
+          apt-get install -y zip
+      - name: Archive artifacts
+        run: cd artifacts && zip -r ../dist.zip .
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: artifacts/
+          retention-days: 5
+      - name: create release and upload artifacts
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

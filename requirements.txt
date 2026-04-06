@@ -1,5 +1,17 @@
-pyshortcuts 
-winotify
-win32security
-pyyaml
+Image
+
+# nuitka
+msvc-runtime
+Nuitka[onefile]==2.6
+ordered-set
+pathlib
+
+pre-commit
+pyshortcuts
+pystray
 python-box
+python-pidfile
+pywin32
+pyyaml
+winotify
+zstandard
