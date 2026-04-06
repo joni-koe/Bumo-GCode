@@ -124,7 +124,11 @@ class Duplicator:
 
                         self._copy_file(file_path, target_path)
                         self._notifier.show_notification(
+<<<<<<< HEAD
                             f'{file_name} sent {random.choice(self._vars.suc_synonyms)}',
+=======
+                            F'{file_name} sent {random.choice(self._vars.suc_synonyms)}',
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
                         )
                     self._already_transfered_files[file_name] = mod_time
 

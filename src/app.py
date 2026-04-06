@@ -21,6 +21,7 @@ from src.vars import Vars
 
 
 class App:
+<<<<<<< HEAD
     def __init__(self, force_run: bool = False) -> None:
         self._is_running = True
         self._stack = ExitStack()
@@ -29,11 +30,17 @@ class App:
 
         self._exit_if_already_running(force_run)
 
+=======
+    def __init__(self) -> None:
+        self._vars = Vars.from_yaml('./config.yaml')
+        self._notifier = Notifier(self._vars.get_data_file_path(self._vars.icon_file_name))
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
         self._duplicators = Duplicator(self._vars, self._notifier)
         self._uptime_checker = UptimeChecker(self._vars, self._notifier)
 
         self._vars.inject_notifier(self._notifier)
 
+<<<<<<< HEAD
         self._duplicator_thread = threading.Thread(target=self._duplicators.run, daemon=True)
         self._uptime_checker_thread = threading.Thread(target=self._uptime_checker.run, daemon=True)
 
@@ -82,6 +89,15 @@ class App:
             time.sleep(2)
             sys.exit(-1)
 
+=======
+        self._duplicator_thread = threading.Thread(target=self._duplicators.run)
+        self._uptime_checker_thread = threading.Thread(target=self._uptime_checker.run)
+        self._duplicator_thread.daemon = True
+        self._uptime_checker_thread.daemon = True
+
+        self._startup()
+
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
     def _auto_install_startup(self) -> bool:
         os.makedirs(self._vars.auto_start_dir, exist_ok=True)
 
@@ -89,12 +105,17 @@ class App:
             script=self._vars.get_exe_path(),
             name=self._vars.startup_shortcut_name,
             folder=self._vars.auto_start_dir,
+<<<<<<< HEAD
             icon=self._vars.icon_file_png_path,
+=======
+            icon=self._vars.icon_file_name,
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
             description=None,
         )
         print(f"Shortcut '{self._vars.startup_shortcut_name}' created.")
         return True
 
+<<<<<<< HEAD
     def _close_splash(self) -> None:
         if 'NUITKA_ONEFILE_PARENT' in os.environ:
             splash_filename = os.path.join(
@@ -112,6 +133,16 @@ class App:
             print('auto installing in startup folder')
             self._auto_install_startup()
             self._close_splash()
+=======
+    def _startup(self) -> None:
+        if self._vars.running_as_exe():
+            self._auto_install_startup()
+            with suppress(ModuleNotFoundError):
+                # pylint: disable=import-error, import-outside-toplevel
+                import pyi_splash
+
+                pyi_splash.close()
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
 
         self._duplicators.init()
 
@@ -119,22 +150,32 @@ class App:
         self._duplicator_thread.start()
         self._uptime_checker_thread.start()
 
+<<<<<<< HEAD
         while self._is_running:
+=======
+        while True:
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
             if self._vars.auto_reload_config():
                 self._duplicators.init()
             time.sleep(5)
 
     def stop(self) -> None:
+<<<<<<< HEAD
         print('shutting down app')
 
         self._is_running = False
         self._duplicators.stop()
         self._uptime_checker.stop()
         self._system_tray_icon.stop()
+=======
+        self._duplicators.stop()
+        self._uptime_checker.stop()
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
 
         self._duplicator_thread.join()
         self._uptime_checker_thread.join()
 
+<<<<<<< HEAD
         self._stack.close()
 
 
@@ -144,6 +185,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     app = App(args.force)
+=======
+
+if __name__ == '__main__':
+    app = App()
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
     try:
         app.run()
     except KeyboardInterrupt as _:
