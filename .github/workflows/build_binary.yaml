@@ -9,18 +9,13 @@ jobs:
   build-push-container:
     runs-on: ubuntu-latest
     container:
-<<<<<<< HEAD
         image: jairf/nuitka_win_builder:latest
-=======
-        image: tobix/pywine:3.10
->>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
     permissions:
         contents: write # Needed for creating a release and uploading assets
     steps:
       - uses: actions/checkout@v4
       - run: wine python -m pip install -r requirements.txt
       - run: mkdir artifacts
-<<<<<<< HEAD
       - name: Insert version tag
         run: |
             sed -i 's/x.x.x/${{ github.ref_name }}/g' src/const.py
@@ -28,11 +23,6 @@ jobs:
       - run: chmod +x *.sh && ./build_exe.sh
       - run: cp app.exe artifacts
       - run: cp config.yaml artifacts
-=======
-      - run: wine pyinstaller --onefile --noconsole --icon icon/icon.ico --splash data/splash.png --add-data "data:data" --paths src src/app.py
-      - run: cp dist/app.exe artifacts
-      - run: cp config.yaml stop.bat artifacts
->>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
       - name: Install Zip Utility
         run: |
           apt-get update
