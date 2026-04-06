@@ -54,15 +54,32 @@ class Duplicator:
             mod_time = self._already_transfered_files[file_name]
             if last_mode_time > mod_time:
                 should_copy = True
-        except KeyError as _:
+        except KeyError as e:
             should_copy = True
-            print('new file - copying')
         return should_copy
 
+    def read_user_from_gcode_file(self, filepath:str) -> str:
+        USER_CODENAME = 'User'
+        with open(filepath, 'r') as gcode_file:
+            lines = gcode_file.readlines(self._vars.header_lines)
+            for line in lines:
+                line = line.strip().replace(' ', '').replace('\t', '').removeprefix('(').removesuffix(')')
+                if line.find(USER_CODENAME) >= 0:
+                    line = line.removeprefix(USER_CODENAME + ':')
+                    return line
+
+        return ''
+
+
     def _should_copy_file(self, file_path: str, last_mode_time: float) -> bool:
-        return self._new_or_moded_file(os.path.basename(file_path), last_mode_time) and Duplicator.am_i_the_owner(
-            file_path,
-        )
+        file_modified:bool = self._new_or_moded_file(os.path.basename(file_path), last_mode_time)
+        
+        if file_modified:
+            username:str = self.read_user_from_gcode_file(file_path)
+            if username == self._vars.user_name or username == '':
+                return True
+
+        return False
 
     @classmethod
     def am_i_the_owner(cls, file_path: str) -> bool:
@@ -107,7 +124,11 @@ class Duplicator:
 
                         self._copy_file(file_path, target_path)
                         self._notifier.show_notification(
+<<<<<<< HEAD
+                            f'{file_name} sent {random.choice(self._vars.suc_synonyms)}',
+=======
                             F'{file_name} sent {random.choice(self._vars.suc_synonyms)}',
+>>>>>>> e3fb2ff3bb3f0f2a2e04c4fc4917770883fbe247
                         )
                     self._already_transfered_files[file_name] = mod_time
 
