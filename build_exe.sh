@@ -6,7 +6,7 @@ wine python -m nuitka --jobs=$(nproc) --standalone \
     --include-data-dir=data=data \
     --onefile-windows-splash-screen-image=data/splash.png \
     --windows-icon-from-ico=data/icon.ico \
-    --company-name="Köger" --product-name="Bumo-GCode" \
+    --company-name="Koeger" --product-name="Bumo-GCode" \
     --file-version=x.x.x --product-version=x.x.x \
-    --file-description="Copier" --copyright="2026" \
+    --file-description="Bumo-GCode" --copyright="2026" \
     --output-filename=app.exe src/app.py
